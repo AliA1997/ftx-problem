@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.1155.0",
     "axios": "^0.27.2",
     "bluebird": "^3.7.2",
     "crypto-js": "^4.0.0",
