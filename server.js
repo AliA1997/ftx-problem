@@ -9,6 +9,8 @@ const { format } = require("date-fns");
 const NodeCache = require("node-cache");
 const Promise = require("bluebird");
 const app = express();
+const { BinarySearchTree } = require('./BinarySearchTree');
+
 const cryptoAssetsToBuy = ["GRT", "ETH", "BTC", "SOL"];
 const cache = new NodeCache();
 cache.set("marketOrders", "[]", 1000 * 60 * 60);
@@ -23,8 +25,10 @@ app.use((req, res, next) => {
     process.env.FTX_API_SECRET,
     { domain: "ftxus" }
   );
+  const binarySearchTree = new BinarySearchTree();
   app.set("client", client);
   app.set("cache", cache);
+  app.set("binarySearchTree", binarySearchTree);
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -35,6 +39,7 @@ app.get("/api/check_orders", async (req, res) => {
   const apiClient = app.get("client");
 
   const cache = app.get("cache");
+  const binarySearchTree = app.get('binarySearchTree');
   const marketOrders = JSON.parse(
     cache.get("marketOrders") ? cache.get("marketOrders") : "{}"
   );
@@ -43,7 +48,8 @@ app.get("/api/check_orders", async (req, res) => {
     m.name === `GRT/USD`
   )
   .map(m => m.ask);
-
+  console.log('binarySearchTree:', binarySearchTree);
+  console.log('binarySearchTree item:', binarySearchTree.search(0.0977));
   Promise.map(
     currentMarketPrices,
     (currentMarketPrice) => {
@@ -112,6 +118,7 @@ app.post("/api/place-order", async (req, res) => {
   );
   const apiClient = app.get("client");
   const cache = app.get("cache");
+  const binarySearchTree = app.get('binarySearchTree');
   try {
     if (!cryptoAssetBuyAndSell) throw new Error("Asset not available to buy.");
     const ordersToPlace = [
@@ -119,7 +126,7 @@ app.post("/api/place-order", async (req, res) => {
         market: `${cryptoAssetBuyAndSell}/USD`,
         subaccount: "Main Account",
         side: "buy",
-        price: 0.15355,
+        price: 0.0977,
         type: "market",
         size: 3,
         reduceOnly: false,
@@ -128,12 +135,14 @@ app.post("/api/place-order", async (req, res) => {
         market: `${cryptoAssetBuyAndSell}/USD`,
         subaccount: "Main Account",
         side: "sell",
-        price: 0.15355,
+        price: 0.0977,
         type: "market",
         size: 3,
         reduceOnly: false,
       },
     ];
+    ordersToPlace.forEach(order => binarySearchTree.insert(order.price));
+    cache.set('binarySearchTree', binarySearchTree);
     cache.set("marketOrders", JSON.stringify(ordersToPlace));
     console.log(cache.get("marketOrders"));
     res.json({ success: true });
