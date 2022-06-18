@@ -21,7 +21,7 @@ awsSDK.config.update({
   secretAccessKey: <Secret Access Key>,
 });
 
-const queueUrl = "https://sqs.us-east-1.amazonaws.com/656062930028/order-placement-queue.fifo";
+const queueUrl = <Queue Url>;
 
 const createSendMessageParams = (messageTitle, messageBody) => ({
   DelaySeconds: 0,
