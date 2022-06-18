@@ -17,8 +17,8 @@ cache.set("marketOrders", "[]", 1000 * 60 * 60);
 //Configure awsSdk options.
 awsSDK.config.update({
   region: "us-east-1",
-  accessKeyId: "AKIAZRQDF3RWOTT7LWVQ",
-  secretAccessKey: "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",
+  accessKeyId: <Access Key id>,
+  secretAccessKey: <Secret Access Key>,
 });
 
 const queueUrl = "https://sqs.us-east-1.amazonaws.com/656062930028/order-placement-queue.fifo";
